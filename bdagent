@@ -1,0 +1,217 @@
+#!/bin/bash
+
+#[ Script ]--------------------------------------------------------------------#
+#                                                                              #
+# bdagent                                                                      #
+#                                                                              #
+# PT-br:                                                                       #
+# Script Cliente de backup com tar e rsync                                     #
+#                                                                              #
+# ----------------------------                                                 #
+#                                                                              #
+# EN:                                                                          #
+# Client backup script with tar and rsync                                      #
+#                                                                              #
+# reimlima@gmail.com                                                           #
+# $Id: bdagent,v 2 2015/04/13 reimlima Exp reimlima $                          #
+#                                                                              #
+#[ License ]-------------------------------------------------------------------#
+#                                                                              #
+# Copyright (c) 2015 Reinaldo Marques de Lima reimlima@gmail.com               #
+#                                                                              #
+# PT-br:                                                                       #
+# A permissão  é  concedida,  a título gratuito, a qualquer pessoa que obtenha #
+# uma   cópia   deste   software   e   arquivos   de  documentação  associados #
+# (o "Software"),  para  lidar  com  o  Software sem restrição, incluindo, sem #
+# limitação,  os  direitos  de  usar,  copiar,  modificar,  mesclar, publicar, #
+# distribuir,  sublicenciar,  e / ou vender cópias do Software, e permitir que #
+# as  pessoas  a  quem  o  Software  é fornecido o façam, sujeito às seguintes #
+# condições:                                                                   #
+#                                                                              #
+# O  aviso de copyright acima e este aviso de permissão devem ser incluídos em #
+# todas as cópias ou partes substanciais do Software.                          #
+#                                                                              #
+# O  SOFTWARE É FORNECIDO "COMO ESTÁ", SEM GARANTIA DE QUALQUER TIPO, EXPRESSA #
+# OU  IMPLÍCITA,  INCLUINDO,  SEM  LIMITAÇÃO, AS GARANTIAS DE COMERCIALIZAÇÃO, #
+# ADEQUAÇÃO  A  UM  DETERMINADO  FIM E NÃO VIOLAÇÃO. EM NENHUM CASO OS AUTORES #
+# OU  DIREITOS AUTORAIS TITULARES  SERÃO RESPONSÁVEIS POR QUALQUER RECLAMAÇÃO, #
+# DANOS  OU  OUTRAS  RESPONSABILIDADES,  SEJA  EM  UMA  AÇÃO DE CUMPRIMENTO DE #
+# CONTRATO OU DE OUTRA FORMA, DECORRENTE DE, OU EM CONEXÃO COM O SOFTWARE OU O #
+# USO OU OUTRAS FUNÇÕES DO SOFTWARE.                                           #
+#                                                                              #
+# Exceto  conforme  contido no presente aviso, o nome do (s) dos detentores de #
+# direitos  autorais acima não devem ser utilizados em publicidade ou de outra #
+# forma  para  promover  a venda, uso ou outras negociações deste Software sem #
+# autorização prévia por escrito.                                              #
+#                                                                              #
+# ----------------------------                                                 #
+#                                                                              #
+# EN:                                                                          #
+# Permission is hereby granted, free of charge, to any person obtaining a copy #
+# of  this  software  and  associated  documentation  files  (the "Software"), #
+# to  deal  in  the Software without restriction, including without limitation #
+# the  rights  to  use,  copy, modify, merge, publish, distribute, sublicense, #
+# and/or  sell  copies  of  the  Software,  and  to permit persons to whom the #
+# Software is furnished to do so, subject to the following conditions:         #
+#                                                                              #
+# The  above  copyright notice and this permission notice shall be included in #
+# all copies or substantial portions of the Software.                          #
+#                                                                              #
+# THE  SOFTWARE  IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR #
+# IMPLIED,  INCLUDING  BUT  NOT  LIMITED TO THE WARRANTIES OF MERCHANTABILITY, #
+# FITNESS  FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE #
+# AUTHORS  OR  COPYRIGHT  HOLDERS  BE  LIABLE  FOR ANY CLAIM, DAMAGES OR OTHER #
+# LIABILITY,   WHETHER   IN   AN   ACTION  OF  CONTRACT,  TORT  OR  OTHERWISE, #
+# ARISING FROM,  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER #
+# DEALINGS IN THE SOFTWARE.                                                    #
+#                                                                              #
+# Except  as  contained  in  this  notice,  the name(s) of the above copyright #
+# holders  shall  not be used in advertising or otherwise to promote the sale, #
+# use or other dealings in this Software without prior written authorization.  #
+#                                                                              #
+#[ Changelog ]-----------------------------------------------------------------#
+#                                                                              #
+#                                                                              #
+#------------------------------------------------------------------------------#
+
+#[ Variables ]-----------------------------------------------------------------#
+
+LS=$(which ls)
+TAR=$(which tar)
+FIND=$(which find)
+DATE=$(which date)
+RSYNC=$(which rsync)
+SCRIPTNAME=$(basename $0)
+BKPFILEHOST=$(echo $HOSTNAME)
+BKPFILEDATE=$($DATE +%Y%m%d%H%M)
+LOCKFILE=/tmp/${SCRIPTNAME}.lock
+
+# script conf file. Set here the full path like "/etc/backupdrawer/bdagent.conf"
+SCRIPTCONFFILE="/home/rlima/backupdrawer/bdagent.conf"
+
+#[ Functions ]-----------------------------------------------------------------#
+
+trapfunction(){
+
+        # Function called by 'trap' command. Only removes lock
+        # file if the process PID was the same in the file.
+
+        PIDOFMYSELF=$$
+        PIDINLOCKFILE=$(cat $LOCKFILE)
+        if [ "$PIDOFMYSELF" == "$PIDINLOCKFILE" ] ; then
+                rm $LOCKFILE
+        else
+                echo
+                echo "PID: $PIDINLOCKFILE"
+                echo
+        fi
+
+}
+
+trap trapfunction 0 1 2 3 9 15
+
+exiterrorfunc(){
+
+        # Generic output function, show the message given,
+        # and then exits with the given code.
+
+        # Parse message and exit code
+        EXITCODE=$(echo $@ | awk '{print $NF}')
+        EXITMESSAGE=$(echo $@ | awk '{ $NF = ""; print $0}')
+        echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - $EXITMESSAGE" >> $BDAGENTLOG
+        exit $EXITCODE
+
+}
+
+makeBackupTarFile(){
+
+	echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - creating a backup file with the content below" >> $BDAGENTLOG
+	$TAR -C / -cvzf $DESTINATIONTAR/$BKPFILEHOST.$BKPFILENAME.$BKPFILEDATE.tar.gz $BKPDIRNFILES >> $BDAGENTLOG 2> /dev/null
+	return
+
+}
+
+sendBackupTarFile(){
+
+	BACKUPFULLNAME="$BKPFILEHOST.$BKPFILENAME.$BKPFILEDATE.tar.gz"
+	echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - sendind the backup file \"$BACKUPFULLNAME\" to the remote host: $SERVERBKP" >> $BDAGENTLOG
+	#$RSYNC -tv $DESTINATIONTAR/$BACKUPFULLNAME $SERVERBKPUSER@$SERVERBKP::$SERVERBKPPATH >> $BDAGENTLOG 2> /dev/null
+	echo "$RSYNC -tv $DESTINATIONTAR/$BACKUPFULLNAME $SERVERBKPUSER@$SERVERBKP::$SERVERBKPPATH"
+	return
+
+}
+
+testBackupTarFile(){
+
+	FILETORESTORE=$($FIND $DESTINATIONTAR/* -type f -mtime 0)
+	if [ -e $FILETORESTORE ]; then
+		return
+	else
+		return 1
+	fi
+
+}
+
+restoreBackupTarFile(){
+
+	echo
+	echo "Found this as last Backup: $FILETORESTORE"
+	echo "Run the command below to restore:"
+	echo "tar -xvzf $FILETORESTORE -C /"
+	echo
+	echo "restore notification done" >> $BDAGENTLOG
+	return
+
+}
+
+executionFlow(){
+
+	if [ $ACTION ]; then
+		testBackupTarFile
+		[ $? -eq 0 ] || exiterrorfunc "Something went wrong, check if the file exist 1"
+		wait
+		restoreBackupTarFile
+		[ $? -eq 0 ] || exiterrorfunc "Something went wrong, check if the filesystem is ok 1"
+		exiterrorfunc "all restore operations were done successfully 0"
+	else
+		makeBackupTarFile
+		[ $? -eq 0 ] || exiterrorfunc "Something went wrong, check if the destination path is full 1"
+		wait
+		sendBackupTarFile
+		[ $? -eq 0 ] || exiterrorfunc "Something went wrong, check if the backup server is available 1"
+		exiterrorfunc "all backup operations were done successfully 0"
+	fi
+
+}
+
+#[ Load conf file ]------------------------------------------------------------#
+
+if [ -e $SCRIPTCONFFILE ] ; then
+        source $SCRIPTCONFFILE
+else
+        exiterrorfunc "ERROR: $SCRIPTCONFFILE file not found 1"
+fi
+
+#[ tests, tests, tests ]-------------------------------------------------------#
+
+# Validate if there is a lock file
+if [ -e $LOCKFILE ]; then
+        exiterrorfunc "There is another script running 1"
+else
+        echo "$$" > $LOCKFILE
+fi
+
+# Validate command line option
+if [[ $1 = "" ]] ; then
+	echo "-----------------------------------------------------" >> $BDAGENTLOG
+	echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - starting execution" >> $BDAGENTLOG
+	executionFlow
+elif [ `echo $1 | sed '/-r/!d'` ] ; then
+	echo "-----------------------------------------------------" >> $BDAGENTLOG
+	echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - executing a data restore" >> $BDAGENTLOG
+	ACTION="restore"
+	executionFlow
+else
+	echo "-----------------------------------------------------" >> $BDAGENTLOG
+	exiterrorfunc "USAGE: Only use \"$SCRIPTNAME -d\" for debug 1"
+fi

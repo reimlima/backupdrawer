@@ -123,7 +123,7 @@ exiterrorfunc(){
 
 }
 
-purgeBackupTarFile((){
+purgeBackupTarFile(){
         
         # Automatic purge old files older than "BKPFILERETENTION"
         # option in bdagent.conf

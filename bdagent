@@ -123,6 +123,17 @@ exiterrorfunc(){
 
 }
 
+purgeBackupTarFile((){
+        
+        # Automatic purge old files older than "BKPFILERETENTION"
+        # option in bdagent.conf
+        
+        echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - Removing files older than $BKPFILERETENTION day" >> $BDAGENTLOG
+        $FIND $DESTINATIONTAR/*.gz -type f -mtime +$BKPFILERETENTION  -exec rm -vf {} \;
+        return
+        
+}
+
 makeBackupTarFile(){
 
 	echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - creating a backup file with the content below" >> $BDAGENTLOG
@@ -173,6 +184,9 @@ executionFlow(){
 		[ $? -eq 0 ] || exiterrorfunc "Something went wrong, check if the filesystem is ok 1"
 		exiterrorfunc "all restore operations were done successfully 0"
 	else
+		purgeBackupTarFile
+		[ $? -eq 0 ] || exiterrorfunc "Something went wrong with Backup Purge, check $DESTINATIONTAR 1"
+		wait
 		makeBackupTarFile
 		[ $? -eq 0 ] || exiterrorfunc "Something went wrong, check if the destination path is full 1"
 		wait

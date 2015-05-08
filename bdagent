@@ -13,7 +13,7 @@
 # Client backup script with tar and rsync                                      #
 #                                                                              #
 # reimlima@gmail.com                                                           #
-# $Id: bdagent,v 2 2015/04/13 reimlima Exp reimlima $                          #
+# $Id: bdagent,v 2.2 2015/05/08 reimlima Exp reimlima $                        #
 #                                                                              #
 #[ License ]-------------------------------------------------------------------#
 #                                                                              #
@@ -71,6 +71,9 @@
 #                                                                              #
 #[ Changelog ]-----------------------------------------------------------------#
 #                                                                              #
+# [13/04/2015] - v1   - First Stable Release                                   #
+# [22/04/2015] - v2   - Added 'old files purge' function                       #
+# [08/04/2015] - v2.2 - Some Bug Fixes                                         #
 #                                                                              #
 #------------------------------------------------------------------------------#
 
@@ -87,7 +90,7 @@ BKPFILEDATE=$($DATE +%Y%m%d%H%M)
 LOCKFILE=/tmp/${SCRIPTNAME}.lock
 
 # script conf file. Set here the full path like "/etc/backupdrawer/bdagent.conf"
-SCRIPTCONFFILE="/home/rlima/backupdrawer/bdagent.conf"
+SCRIPTCONFFILE="/etc/backupdrawer/bdagent.conf"
 
 #[ Functions ]-----------------------------------------------------------------#
 
@@ -129,7 +132,7 @@ purgeBackupTarFile(){
         # option in bdagent.conf
         
         echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - Removing files older than $BKPFILERETENTION day" >> $BDAGENTLOG
-        $FIND $DESTINATIONTAR/*.gz -type f -mtime +$BKPFILERETENTION  -exec rm -vf {} \;
+        $FIND $DESTINATIONTAR/ -type f -mtime +$BKPFILERETENTION  -exec rm -vf {} \;
         return
         
 }
@@ -146,7 +149,7 @@ sendBackupTarFile(){
 
 	BACKUPFULLNAME="$BKPFILEHOST.$BKPFILENAME.$BKPFILEDATE.tar.gz"
 	echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - sendind the backup file \"$BACKUPFULLNAME\" to the remote host: $SERVERBKP" >> $BDAGENTLOG
-	$RSYNC -tv $DESTINATIONTAR/$BACKUPFULLNAME $SERVERBKPUSER@$SERVERBKP::$SERVERBKPPATH >> $BDAGENTLOG 2> /dev/null
+	$RSYNC -tv $DESTINATIONTAR/$BACKUPFULLNAME $SERVERBKPUSER@$SERVERBKP::$SERVERBKPPATH/$BACKUPFULLNAME >> $BDAGENTLOG 2> /dev/null
 	return
 
 }

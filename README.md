@@ -24,7 +24,9 @@ For more informations, please visit this link:
 Changelog
 --------------------------------------------------------------------------------
 
-2015-04-13	- v1	- First Stable Release
+[13/04/2015] - v1   - First Stable Release
+[22/04/2015] - v2   - Added 'old files purge' function
+[08/04/2015] - v2.2 - Some Bug Fixes
 
 How to use it
 --------------------------------------------------------------------------------

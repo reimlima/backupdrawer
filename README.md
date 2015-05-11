@@ -21,12 +21,19 @@ For more informations, please visit this link:
 
 	https://download.samba.org/pub/rsync/rsyncd.conf.html
 
+IMPORTANT WARNING!!!
+
+Don't use this script with files that are currently open to write by another process.
+
+This scenery creates a wrong 'exit status' and makes the script exit without finish all steps. 
+
 Changelog
 --------------------------------------------------------------------------------
 
 [13/04/2015] - v1   - First Stable Release
 [22/04/2015] - v2   - Added 'old files purge' function
-[08/04/2015] - v2.2 - Some Bug Fixes
+[08/05/2015] - v2.2 - Some Bug Fixes
+[11/05/2015] - v2.3 - Allow wildcard in 'BKPDIRNFILES' in the conf file.
 
 How to use it
 --------------------------------------------------------------------------------

@@ -13,7 +13,7 @@
 # Client backup script with tar and rsync                                      #
 #                                                                              #
 # reimlima@gmail.com                                                           #
-# $Id: bdagent,v 2.2 2015/05/08 reimlima Exp reimlima $                        #
+# $Id: bdagent,v 2.4 2015/05/15 reimlima Exp reimlima $                        #
 #                                                                              #
 #[ License ]-------------------------------------------------------------------#
 #                                                                              #

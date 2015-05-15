@@ -9,8 +9,11 @@ Notice
 This script was tested and work well in:
 
 * Linux
+
         - OS Distribution: CentOS release 6.6 (Final)
+
         - Kernel: 2.6.32-504.3.3.el6.x86_64
+
         - GNU bash: version 4.1.2(1)-release (x86_64-redhat-linux-gnu)
 
 BEFORE USE IT:
@@ -31,9 +34,13 @@ Changelog
 --------------------------------------------------------------------------------
 
 [13/04/2015] - v1   - First Stable Release
+
 [22/04/2015] - v2   - Added 'old files purge' function
+
 [08/05/2015] - v2.2 - Some Bug Fixes
+
 [11/05/2015] - v2.3 - Allow wildcard in 'BKPDIRNFILES' in the conf file.
+
 [15/05/2015] - v2.4 - added "--ignore-failed-read" option to not exit with
                       nonzero on unreadable files.
 

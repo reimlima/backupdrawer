@@ -1,2 +1,2 @@
-# scheduling suggestion, everyday at 2AM
-#0 2 * * *       root    bash /usr/local/bin/backupdrawer/bdagent
+# scheduling suggestion, everyday at 4AM
+#0 4 * * *       root    bash /usr/local/bin/backupdrawer/bdagent

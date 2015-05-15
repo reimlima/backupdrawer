@@ -34,6 +34,8 @@ Changelog
 [22/04/2015] - v2   - Added 'old files purge' function
 [08/05/2015] - v2.2 - Some Bug Fixes
 [11/05/2015] - v2.3 - Allow wildcard in 'BKPDIRNFILES' in the conf file.
+[15/05/2015] - v2.4 - added "--ignore-failed-read" option to not exit with
+                      nonzero on unreadable files.
 
 How to use it
 --------------------------------------------------------------------------------
@@ -72,3 +74,11 @@ Example:
 	SERVERBKP="faraway.com"
 	SERVERBKPUSER="rsync"
 	SERVERBKPPATH="backupdir"
+
+Is possible to create dynamic configurations with subshell, for example:
+
+	Files wich was rotated with the date from one day ago.
+	BKPDIRNFILES="etc usr/local/bin var/log/nginx/*$(date +%Y%m%d -d "yesterday")*"
+
+	Daily 'backup directories' in the destination server that will be created automatically.
+	SERVERBKPPATH="backupdir/$hostname/$(date +%Y-%m-%d-%H)"

@@ -194,7 +194,10 @@ executionFlow(){
 		[ $? -eq 0 ] || exiterrorfunc "Something went wrong with Backup Purge, check $DESTINATIONTAR 1"
 		wait
 		makeBackupTarFile
-		[ $? -eq 0 ] || exiterrorfunc "Something went wrong, check if the destination path is full 1"
+		if [ $? -ne 0 ]; then
+			testBackupTarFile
+			[ $? -eq 0 ] || exiterrorfunc "Something went wrong, check if the destination path is full 1"
+		fi
 		wait
 		sendBackupTarFile
 		[ $? -eq 0 ] || exiterrorfunc "Something went wrong, check if the backup server is available 1"

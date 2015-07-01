@@ -44,6 +44,8 @@ Changelog
 [15/05/2015] - v2.4 - added "--ignore-failed-read" option to not exit with
                       nonzero on unreadable files.
 
+[01/07/2017] - v2.5 - Fixing "testBackupTarFile" function Bug
+
 How to use it
 --------------------------------------------------------------------------------
 

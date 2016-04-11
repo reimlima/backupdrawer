@@ -78,6 +78,7 @@
 # [15/05/2015] - v2.4 - added "--ignore-failed-read" option to not exit with   #
 #                       nonzero on unreadable files.                           #
 # [01/07/2015] - v2.5 - Fixing "testBackupTarFile" function Bug.               #
+# [11/04/2016] - v2.6 - Added option to stop storing local files.              #
 #                                                                              #
 #------------------------------------------------------------------------------#
 
@@ -154,6 +155,16 @@ sendBackupTarFile(){
 	BACKUPFULLNAME="$BKPFILEHOST.$BKPFILENAME.$BKPFILEDATE.tar.gz"
 	echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - sendind the backup file \"$BACKUPFULLNAME\" to the remote host: $SERVERBKP" >> $BDAGENTLOG
 	$RSYNC -tv $DESTINATIONTAR/$BACKUPFULLNAME $SERVERBKPUSER@$SERVERBKP::$SERVERBKPPATH/ >> $BDAGENTLOG 2> /dev/null
+
+	if [ $BKPFILELOCALCOPY -eq "1" ]; then
+		echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - removing backup file $BACKUPFULLNAME from local destination $DESTINATIONTAR" >> $BDAGENTLOG
+		$RM -f $DESTINATIONTAR/$BACKUPFULLNAME
+	elif [$BKPFILELOCALCOPY -eq "0" ] ; then
+		echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - keeping backup file $BACKUPFULLNAME in local destination $DESTINATIONTAR during the retention time of $BKPFILERETENTION days" >> $BDAGENTLOG
+	else
+		echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - WARNING - none accepted value has been set in \"BKPFILELOCALCOPY\" option in config file, ignoring..." >> $BDAGENTLOG
+	fi
+
 	return
 
 }

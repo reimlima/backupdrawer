@@ -48,6 +48,8 @@ Changelog
 
 [11/04/2016] - v2.6 - Added option to stop storing local files.
 
+[05/07/2016] - logrotate file for backupdrawer.
+
 How to use it
 --------------------------------------------------------------------------------
 

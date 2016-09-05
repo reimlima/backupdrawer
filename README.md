@@ -16,7 +16,8 @@ This script was tested and work well in:
 
         - GNU bash: version 4.1.2(1)-release (x86_64-redhat-linux-gnu)
 
-BEFORE USE IT:
+Before use it
+--------------------------------------------------------------------------------
 
 Make sure you have a Remote Rsync Server running a daemon.
 
@@ -24,7 +25,8 @@ For more informations, please visit this link:
 
 	https://download.samba.org/pub/rsync/rsyncd.conf.html
 
-IMPORTANT WARNING!!!
+IMPORTANT WARNING
+--------------------------------------------------------------------------------
 
 Don't use this script with files that are currently open to write by another process.
 
@@ -33,22 +35,23 @@ This scenery creates a wrong 'exit status' and makes the script exit without fin
 Changelog
 --------------------------------------------------------------------------------
 
-[13/04/2015] - v1   - First Stable Release
+[13/04/2015] - v1     - First Stable Release
 
-[22/04/2015] - v2   - Added 'old files purge' function
+[22/04/2015] - v2     - Added 'old files purge' function
 
-[08/05/2015] - v2.2 - Some Bug Fixes
+[08/05/2015] - v2.2   - Some Bug Fixes
 
-[11/05/2015] - v2.3 - Allow wildcard in 'BKPDIRNFILES' in the conf file.
+[11/05/2015] - v2.3   - Allow wildcard in 'BKPDIRNFILES' in the conf file.
 
-[15/05/2015] - v2.4 - added "--ignore-failed-read" option to not exit with
-                      nonzero on unreadable files.
+[15/05/2015] - v2.4   - added "--ignore-failed-read" option to not exit with nonzero on unreadable files.
 
-[01/07/2017] - v2.5 - Fixing "testBackupTarFile" function Bug.
+[01/07/2015] - v2.5   - Fixing "testBackupTarFile" function Bug.
 
-[11/04/2016] - v2.6 - Added option to stop storing local files.
+[11/04/2016] - v2.6   - Added option to stop storing local files.
 
-[05/07/2016] - logrotate file for backupdrawer.
+[05/07/2016] - v2.6   - Logrotate file for backupdrawer.
+
+[05/09/2016] - v2.6.1 - Minor update in BKPFILELOCALCOPY var verification
 
 How to use it
 --------------------------------------------------------------------------------
@@ -69,6 +72,10 @@ Legend:
 
 	DESTINATIONTAR:	Destination path to the backup file
 
+	BKPFILERETENTION: Time in days to keep a local copy.
+
+	BKPFILELOCALCOPY: Keep a local copy of backup file. "0" to "yes", "1" yo "no". Anything else will be ignored.
+
 	BDAGENTLOG:	Log path and file
 
 	SERVERBKP:	Remote Server to send the backup file
@@ -83,6 +90,8 @@ Example:
 	BKPFILENAME="EtcAndUsr"
 	BKPDIRNFILES="etc/cups/printers.conf usr/local/bin"
 	DESTINATIONTAR="/var/bdagent"
+	BKPFILERETENTION="0"
+	BKPFILELOCALCOPY="0"
 	BDAGENTLOG="/var/log/backupdrawer/bdagent.log"
 	SERVERBKP="faraway.com"
 	SERVERBKPUSER="rsync"

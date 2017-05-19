@@ -1,94 +1,93 @@
 #!/bin/bash
 
-#[ Script ]--------------------------------------------------------------------#
-#                                                                              #
-# bdagent                                                                      #
-#                                                                              #
-# PT-br:                                                                       #
-# Script Cliente de backup com tar e rsync                                     #
-#                                                                              #
-# ----------------------------                                                 #
-#                                                                              #
-# EN:                                                                          #
-# Client backup script with tar and rsync                                      #
-#                                                                              #
-# reimlima@gmail.com                                                           #
-# $Id: bdagent,v 2.5.1 2015/09/05 reimlima Exp reimlima $                      #
-#                                                                              #
-#[ License ]-------------------------------------------------------------------#
-#                                                                              #
-# Copyright (c) 2015 Reinaldo Marques de Lima reimlima@gmail.com               #
-#                                                                              #
-# PT-br:                                                                       #
-# A permissão  é  concedida,  a título gratuito, a qualquer pessoa que obtenha #
-# uma   cópia   deste   software   e   arquivos   de  documentação  associados #
-# (o "Software"),  para  lidar  com  o  Software sem restrição, incluindo, sem #
-# limitação,  os  direitos  de  usar,  copiar,  modificar,  mesclar, publicar, #
-# distribuir,  sublicenciar,  e / ou vender cópias do Software, e permitir que #
-# as  pessoas  a  quem  o  Software  é fornecido o façam, sujeito às seguintes #
-# condições:                                                                   #
-#                                                                              #
-# O  aviso de copyright acima e este aviso de permissão devem ser incluídos em #
-# todas as cópias ou partes substanciais do Software.                          #
-#                                                                              #
-# O  SOFTWARE É FORNECIDO "COMO ESTÁ", SEM GARANTIA DE QUALQUER TIPO, EXPRESSA #
-# OU  IMPLÍCITA,  INCLUINDO,  SEM  LIMITAÇÃO, AS GARANTIAS DE COMERCIALIZAÇÃO, #
-# ADEQUAÇÃO  A  UM  DETERMINADO  FIM E NÃO VIOLAÇÃO. EM NENHUM CASO OS AUTORES #
-# OU  DIREITOS AUTORAIS TITULARES  SERÃO RESPONSÁVEIS POR QUALQUER RECLAMAÇÃO, #
-# DANOS  OU  OUTRAS  RESPONSABILIDADES,  SEJA  EM  UMA  AÇÃO DE CUMPRIMENTO DE #
-# CONTRATO OU DE OUTRA FORMA, DECORRENTE DE, OU EM CONEXÃO COM O SOFTWARE OU O #
-# USO OU OUTRAS FUNÇÕES DO SOFTWARE.                                           #
-#                                                                              #
-# Exceto  conforme  contido no presente aviso, o nome do (s) dos detentores de #
-# direitos  autorais acima não devem ser utilizados em publicidade ou de outra #
-# forma  para  promover  a venda, uso ou outras negociações deste Software sem #
-# autorização prévia por escrito.                                              #
-#                                                                              #
-# ----------------------------                                                 #
-#                                                                              #
-# EN:                                                                          #
-# Permission is hereby granted, free of charge, to any person obtaining a copy #
-# of  this  software  and  associated  documentation  files  (the "Software"), #
-# to  deal  in  the Software without restriction, including without limitation #
-# the  rights  to  use,  copy, modify, merge, publish, distribute, sublicense, #
-# and/or  sell  copies  of  the  Software,  and  to permit persons to whom the #
-# Software is furnished to do so, subject to the following conditions:         #
-#                                                                              #
-# The  above  copyright notice and this permission notice shall be included in #
-# all copies or substantial portions of the Software.                          #
-#                                                                              #
-# THE  SOFTWARE  IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR #
-# IMPLIED,  INCLUDING  BUT  NOT  LIMITED TO THE WARRANTIES OF MERCHANTABILITY, #
-# FITNESS  FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE #
-# AUTHORS  OR  COPYRIGHT  HOLDERS  BE  LIABLE  FOR ANY CLAIM, DAMAGES OR OTHER #
-# LIABILITY,   WHETHER   IN   AN   ACTION  OF  CONTRACT,  TORT  OR  OTHERWISE, #
-# ARISING FROM,  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER #
-# DEALINGS IN THE SOFTWARE.                                                    #
-#                                                                              #
-# Except  as  contained  in  this  notice,  the name(s) of the above copyright #
-# holders  shall  not be used in advertising or otherwise to promote the sale, #
-# use or other dealings in this Software without prior written authorization.  #
-#                                                                              #
-#[ Changelog ]-----------------------------------------------------------------#
-#                                                                              #
-# [13/04/2015] - v1     - First Stable Release                                 #
-# [22/04/2015] - v2     - Added 'old files purge' function                     #
-# [08/05/2015] - v2.2   - Some Bug Fixes                                       #
-# [11/05/2015] - v2.3   - Allow wildcard in 'BKPDIRNFILES' in the conf file.   #
-# [15/05/2015] - v2.4   - added "--ignore-failed-read" option to not exit with #
-#                         nonzero on unreadable files.                         #
-# [01/07/2015] - v2.5   - Fixing "testBackupTarFile" function Bug.             #
-# [11/04/2016] - v2.6   - Added option to stop storing local files.            #
-# [05/09/2016] - v2.6.1 - Minor update in BKPFILELOCALCOPY var verification    #
-#------------------------------------------------------------------------------#
+#[ Script ]-------------------------------------------------------------------------------------------------#
+#                                                                                                           #
+# bdagent                                                                                                   #
+#                                                                                                           #
+# PT-br:                                                                                                    #
+# Script Cliente de backup com tar e rsync                                                                  #
+#                                                                                                           #
+# ----------------------------                                                                              #
+#                                                                                                           #
+# EN:                                                                                                       #
+# Client backup script with tar and rsync                                                                   #
+#                                                                                                           #
+# reimlima@gmail.com                                                                                        #
+# $Id: bdagent,v 2.7 2017/17/05 reimlima Exp reimlima $                                                     #
+#                                                                                                           #
+#[ License ]------------------------------------------------------------------------------------------------#
+#                                                                                                           #
+# Copyright (c) 2017 Reinaldo Marques de Lima reimlima@gmail.com                                            #
+#                                                                                                           #
+# PT-br:                                                                                                    #
+# A  permissão  é  concedida, a título gratuito, a qualquer pessoa que obtenha uma   cópia deste software e #
+# arquivos de  documentação  associados (o "Software"), para lidar com o Software sem restrição, incluindo, #
+# sem limitação,  os  direitos  de  usar,  copiar,  modificar, mesclar, publicar, distribuir, sublicenciar, #
+# e / ou vender cópias do Software, e  permitir  que as  pessoas a  quem  o  Software  é fornecido o façam, #
+# sujeito às seguintes condições:                                                                           #
+#                                                                                                           #
+# O  aviso  de  copyright  acima e este aviso de permissão devem ser incluídos em todas as cópias ou partes #
+# substanciais do Software.                                                                                 #
+#                                                                                                           #
+# O  SOFTWARE  É  FORNECIDO  "COMO ESTÁ", SEM GARANTIA  DE QUALQUER TIPO, EXPRESSA OU IMPLÍCITA, INCLUINDO, #
+# SEM LIMITAÇÃO, AS GARANTIAS DE COMERCIALIZAÇÃO, ADEQUAÇÃO A UM DETERMINADO FIM E NÃO VIOLAÇÃO. EM  NENHUM #
+# CASO  OS  AUTORES  OU  DIREITOS  AUTORAIS TITULARES  SERÃO RESPONSÁVEIS POR QUALQUER RECLAMAÇÃO, DANOS OU #
+# OUTRAS RESPONSABILIDADES, SEJA EM UMA  AÇÃO DE CUMPRIMENTO DE CONTRATO  OU  DE  OUTRA  FORMA,  DECORRENTE #
+# DE, OU EM CONEXÃO COM O SOFTWARE OU O USO OU OUTRAS FUNÇÕES DO SOFTWARE.                                  #
+#                                                                                                           #
+# Exceto  conforme  contido  no  presente aviso, o nome do(s) dos detentores de direitos autorais acima não #
+# devem ser utilizados em publicidade ou de outra forma  para  promover  a venda, uso ou outras negociações #
+# deste Software sem autorização prévia por escrito.                                                        #
+#                                                                                                           #
+# ----------------------------                                                                              #
+#                                                                                                           #
+# EN:                                                                                                       #
+# Permission  is  hereby  granted, free  of  charge,  to  any  person obtaining a copy of this software and #
+# associated  documentation  files (the "Software"), to deal in the Software without restriction, including #
+# without  limitation  the  rights  to  use,  copy, modify, merge, publish, distribute, sublicense,  and/or #
+# sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to #
+#the following conditions:                                                                                  #
+#                                                                                                           #
+# The  above  copyright  notice  and  this permission notice shall be included in all copies or substantial #
+# portions of the Software.                                                                                 #
+#                                                                                                           #
+# THE  SOFTWARE  IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,  INCLUDING BUT NOT  #
+# LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS  FOR  A  PARTICULAR  PURPOSE AND  NONINFRINGEMENT.  #
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER  LIABILITY, #
+# WHETHER  IN  AN  ACTION  OF  CONTRACT, TORT  OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE #
+#SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                     #
+#                                                                                                           #
+# Except  as  contained  in  this  notice,  the name(s) of the above copyright holders shall not be used in #
+# advertising  or  otherwise  to  promote  the  sale,  use or other dealings in this Software without prior #
+# written authorization.                                                                                    #
+#                                                                                                           #
+#[ Changelog ]----------------------------------------------------------------------------------------------#
+#                                                                                                           #
+# [13/04/2015] - v1     - First Stable Release.                                                             #
+# [22/04/2015] - v2     - Added 'old files purge' function.                                                 #
+# [08/05/2015] - v2.2   - Some Bug Fixes.                                                                   #
+# [11/05/2015] - v2.3   - Allow wildcard in 'BKPDIRNFILES' in the conf file.                                #
+# [15/05/2015] - v2.4   - added "--ignore-failed-read" option to not exit with nonzero on unreadable files. #
+# [01/07/2015] - v2.5   - Fixing "testBackupTarFile" function Bug.                                          #
+# [11/04/2016] - v2.6   - Added option to stop storing local files.                                         #
+# [05/09/2016] - v2.6.1 - Minor update in BKPFILELOCALCOPY var verification.                                #
+# [05/17/2017] - v2.7   - Removing  unused  conditional  in  restore function.                              #
+#                       - Validation for BDAGENTLOG and DESTINATIONTAR directories to exist.                #
+#                       - Test if Remote Server exist and if it is listen in rsync port                     #
+#                       - Refining some inconsistencies.                                                    #
+#                                                                                                           #
+#-----------------------------------------------------------------------------------------------------------#
 
-#[ Variables ]-----------------------------------------------------------------#
+#[ Variables ]----------------------------------------------------------------------------------------------#
 
 LS=$(which ls)
+NC=$(which nc)
 TAR=$(which tar)
+PWD=$(which pwd)
 FIND=$(which find)
 DATE=$(which date)
 RSYNC=$(which rsync)
+NSLOOKUP=$(which nslookup)
 SCRIPTNAME=$(basename $0)
 BKPFILEHOST=$(echo $HOSTNAME)
 BKPFILEDATE=$($DATE +%Y%m%d%H%M)
@@ -97,7 +96,7 @@ LOCKFILE=/tmp/${SCRIPTNAME}.lock
 # script conf file. Set here the full path like "/etc/backupdrawer/bdagent.conf"
 SCRIPTCONFFILE="/etc/backupdrawer/bdagent.conf"
 
-#[ Functions ]-----------------------------------------------------------------#
+#[ Functions ]----------------------------------------------------------------------------------------------#
 
 trapfunction(){
 
@@ -106,13 +105,13 @@ trapfunction(){
 
         PIDOFMYSELF=$$
         PIDINLOCKFILE=$(cat $LOCKFILE)
-        if [ "$PIDOFMYSELF" == "$PIDINLOCKFILE" ] ; then
-                rm $LOCKFILE
+       	if [[ "$PIDOFMYSELF" == "$PIDINLOCKFILE" ]] ; then
+               	rm $LOCKFILE
         else
+       	        echo
+               	echo "PID: $PIDINLOCKFILE"
                 echo
-                echo "PID: $PIDINLOCKFILE"
-                echo
-        fi
+       	fi
 
 }
 
@@ -127,8 +126,20 @@ exiterrorfunc(){
         EXITCODE=$(echo $@ | awk '{print $NF}')
         EXITMESSAGE=$(echo $@ | awk '{ $NF = ""; print $0}')
         echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - $EXITMESSAGE" >> $BDAGENTLOG
+	[[ $DEBUG ]] && echo $EXITMESSAGE
         exit $EXITCODE
 
+}
+
+usageFunction(){
+
+	# Script utilization function
+
+	echo "USAGE:"
+	echo "\"$SCRIPTNAME -r\" for restore procedure."
+	echo "\"$SCRIPTNAME -d\" for debbuging mode."
+	echo "\"$SCRIPTNAME -h\" show this help."
+	exiterrorfunc "script usage required 0"
 }
 
 purgeBackupTarFile(){
@@ -136,7 +147,7 @@ purgeBackupTarFile(){
         # Automatic purge old files older than "BKPFILERETENTION"
         # option in bdagent.conf
         
-        echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - Removing files older than $BKPFILERETENTION day" >> $BDAGENTLOG
+        echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - [ NOTICE ] - Removing files older than $BKPFILERETENTION day" >> $BDAGENTLOG
         $FIND $DESTINATIONTAR/ -type f -mtime +$BKPFILERETENTION  -exec rm -vf {} \;
         return
         
@@ -144,7 +155,7 @@ purgeBackupTarFile(){
 
 makeBackupTarFile(){
 
-	echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - creating a backup file with the content below" >> $BDAGENTLOG
+	echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - [ NOTICE ] - creating a backup file with the content below" >> $BDAGENTLOG
 	cd / && $TAR --ignore-failed-read -C / -cvzf $DESTINATIONTAR/$BKPFILEHOST.$BKPFILENAME.$BKPFILEDATE.tar.gz --wildcards $BKPDIRNFILES >> $BDAGENTLOG 2> /dev/null
 	return
 
@@ -153,16 +164,26 @@ makeBackupTarFile(){
 sendBackupTarFile(){
 
 	BACKUPFULLNAME="$BKPFILEHOST.$BKPFILENAME.$BKPFILEDATE.tar.gz"
-	echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - sendind the backup file \"$BACKUPFULLNAME\" to the remote host: $SERVERBKP" >> $BDAGENTLOG
-	$RSYNC -tv $DESTINATIONTAR/$BACKUPFULLNAME $SERVERBKPUSER@$SERVERBKP::$SERVERBKPPATH/ >> $BDAGENTLOG 2> /dev/null
+	SERVERBKPREACHTEST=$($NSLOOKUP $SERVERBKP &> /dev/null ; echo $?)
+	SERVERBKPPORTTEST=$($NC -vz -w1 $SERVERBKP 873 &> /dev/null; echo $?)
+	if [[ $SERVERBKPTEST -eq "1" ]] ; then
+		echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - [ ERROR ] - It look like $SERVERBKP doesn't exist" >> $BDAGENTLOG
+		echo "[ ERROR ] - It look like $SERVERBKP doesn't exist"
+	elif [[ $SERVERBKPPORTTEST -eq "1" ]] ; then
+		echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - [ ERROR ] - It look like $SERVERBKP is not listen in port 873" >> $BDAGENTLOG
+		echo "[ ERROR ] - It look like $SERVERBKP is not listen in port 873"
+	else
+		echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - [ NOTICE ] - sendind the backup file \"$BACKUPFULLNAME\" to the remote host: $SERVERBKP" >> $BDAGENTLOG
+		$RSYNC -tv $DESTINATIONTAR/$BACKUPFULLNAME $SERVERBKPUSER@$SERVERBKP::$SERVERBKPPATH/ >> $BDAGENTLOG 2> /dev/null
+	fi
 
 	if [[ $BKPFILELOCALCOPY -eq "1" ]]; then
-		echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - removing backup file $BACKUPFULLNAME from local destination $DESTINATIONTAR" >> $BDAGENTLOG
+		echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - [ NOTICE ] - removing backup file $BACKUPFULLNAME from local destination $DESTINATIONTAR" >> $BDAGENTLOG
 		$RM -f $DESTINATIONTAR/$BACKUPFULLNAME
 	elif [[ $BKPFILELOCALCOPY -eq "0" ]] ; then
-		echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - keeping backup file $BACKUPFULLNAME in local destination $DESTINATIONTAR during the retention time of $BKPFILERETENTION days" >> $BDAGENTLOG
+		echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - [ NOTICE ] - keeping backup file $BACKUPFULLNAME in local destination $DESTINATIONTAR during the retention time of $BKPFILERETENTION days" >> $BDAGENTLOG
 	else
-		echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - WARNING - none accepted value has been set in \"BKPFILELOCALCOPY\" option in config file, ignoring..." >> $BDAGENTLOG
+		echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - [ WARNING ] - none accepted value has been set in \"BKPFILELOCALCOPY\" option in config file, ignoring..." >> $BDAGENTLOG
 	fi
 
 	return
@@ -171,22 +192,12 @@ sendBackupTarFile(){
 
 testBackupTarFile(){
 
-	if [ $ACTION ]; then
-		FILETORESTORE=$($FIND $DESTINATIONTAR/* -type f -mtime 0)
-		if [ -e $FILETORESTORE ]; then
-			RETURNCODE="0"
-		else
-			RETURNCODE="1"
-		fi
+	FILETORESTORE=$($FIND $DESTINATIONTAR/* -type f -mtime 0)
+	if [ -e $FILETORESTORE ]; then
+		RETURNCODE="0"
 	else
-		NEWESTFILE="$DESTINATIONTAR/$BKPFILEHOST.$BKPFILENAME.$BKPFILEDATE.tar.gz"
-		if [ -e $NEWESTFILE ]; then
-			RETURNCODE="0"
-		else
-			RETURNCODE="1"
-		fi
+		RETURNCODE="1"
 	fi
-
 	return $RETURNCODE
 
 }
@@ -199,64 +210,90 @@ restoreBackupTarFile(){
 	echo "tar -xvzf $FILETORESTORE -C /"
 	echo
 	echo "restore notification done" >> $BDAGENTLOG
-	return
+	return 0
 
 }
 
 executionFlow(){
 
-	if [ $ACTION ]; then
+	if [[ $ACTION ]] ; then
 		testBackupTarFile
-		[ $? -eq 0 ] || exiterrorfunc "Something went wrong, check if the file exist 1"
+		[ $? -eq 0 ] || exiterrorfunc "[ ERROR ] - Something went wrong, check if the file exist 1"
 		wait
 		restoreBackupTarFile
-		[ $? -eq 0 ] || exiterrorfunc "Something went wrong, check if the filesystem is ok 1"
-		exiterrorfunc "all restore operations were done successfully 0"
+		[ $? -eq 0 ] || exiterrorfunc "[ ERROR ] - Something went wrong, check if the filesystem is ok 1"
+		exiterrorfunc "[ NOTICE ] - all restore operations were done successfully 0"
 	else
 		purgeBackupTarFile
-		[ $? -eq 0 ] || exiterrorfunc "Something went wrong with Backup Purge, check $DESTINATIONTAR 1"
+		[ $? -eq 0 ] || exiterrorfunc "[ ERROR ] - Something went wrong with Backup Purge, check $DESTINATIONTAR 1"
 		wait
 		makeBackupTarFile
 		if [ $? -ne 0 ]; then
 			testBackupTarFile
-			[ $? -eq 0 ] || exiterrorfunc "Something went wrong, check if the destination path is full 1"
+			[ $? -eq 0 ] || exiterrorfunc "[ ERROR ] - Something went wrong, check if the destination path is full 1"
 		fi
 		wait
 		sendBackupTarFile
-		[ $? -eq 0 ] || exiterrorfunc "Something went wrong, check if the backup server is available 1"
-		exiterrorfunc "all backup operations were done successfully 0"
+		[ $? -eq 0 ] || exiterrorfunc "[ ERROR ] - Something went wrong, check if the backup server is available 1"
+		exiterrorfunc "[ NOTICE ] - all backup operations were done successfully 0"
 	fi
 
 }
 
-#[ Load conf file ]------------------------------------------------------------#
-
-if [ -e $SCRIPTCONFFILE ] ; then
-        source $SCRIPTCONFFILE
-else
-        exiterrorfunc "ERROR: $SCRIPTCONFFILE file not found 1"
-fi
-
-#[ tests, tests, tests ]-------------------------------------------------------#
+#[ tests, tests, tests ]------------------------------------------------------------------------------------#
 
 # Validate if there is a lock file
-if [ -e $LOCKFILE ]; then
-        exiterrorfunc "There is another script running 1"
+
+if [[ -e $LOCKFILE ]]; then
+        exiterrorfunc "[ ERROR ] - There is another script running 1"
 else
         echo "$$" > $LOCKFILE
+fi
+
+# Load conf file 
+
+if [[ -e $SCRIPTCONFFILE ]] ; then
+	source $SCRIPTCONFFILE
+else
+	echo "[ ERROR ] - $SCRIPTCONFFILE file not found"
+	exit 1
+fi
+
+# Validate if logfile and paths defined in configfile do exist
+
+if [[ ! -e $BDAGENTLOG ]] ; then
+	BDAGENTLOGPATH=$(echo $BDAGENTLOG | awk -F/ '{ $NF="" ; gsub(" ","/",$0) ; print $0 }')
+	if [[ ! -d $BDAGENTLOGPATH ]] || [[ -n $BDAGENTLOGPATH ]] ; then
+		BDAGENTLOG="$($PWD)/bdagent.log"
+		if [[ ! -e $BDAGENTLOG ]] ; then
+			echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - [ WARNING ] - log path \"$BDAGENTLOGPATH\" doesn't exist, logfile will be write in $($PWD)" >> $BDAGENTLOG
+		else
+			echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - [ WARNING ] - log path \"$BDAGENTLOGPATH\" doesn't exist" >> $BDAGENTLOG
+			echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - [ WARNING ] - $(echo $BDAGENTLOG | awk -F/ '{ print $NF }') is been written in $($PWD)" >> $BDAGENTLOG
+		fi
+	fi
+fi
+
+if [[ ! -d $DESTINATIONTAR ]] ; then
+	exiterrorfunc "[ ERROR ] - path \"$DESTINATIONTAR\" doesn't exist 1"
 fi
 
 # Validate command line option
 if [[ $1 = "" ]] ; then
 	echo "-----------------------------------------------------" >> $BDAGENTLOG
-	echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - starting execution" >> $BDAGENTLOG
+	echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - [ NOTICE ] - starting execution" >> $BDAGENTLOG
 	executionFlow
 elif [ `echo $1 | sed '/-r/!d'` ] ; then
 	echo "-----------------------------------------------------" >> $BDAGENTLOG
-	echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - executing a data restore" >> $BDAGENTLOG
+	echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - [ NOTICE ] - helping with data restore" >> $BDAGENTLOG
 	ACTION="restore"
 	executionFlow
-else
+elif [ `echo $1 | sed '/-d/!d'` ] ; then
 	echo "-----------------------------------------------------" >> $BDAGENTLOG
-	exiterrorfunc "USAGE: Only use \"$SCRIPTNAME -d\" for debug 1"
+	echo "[ $($DATE +%m/%d/%Y\ %H:%M:%S) ] - [ NOTICE ] - Debug mode turned on" >> $BDAGENTLOG
+	DEBUG="yes"
+elif [ `echo $1 | sed '/-h/!d'` ] ; then
+	usageFunction
+else
+	usageFunction
 fi

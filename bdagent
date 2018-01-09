@@ -75,6 +75,7 @@
 #                       - Validation for BDAGENTLOG and DESTINATIONTAR directories to exist.                #
 #                       - Test if Remote Server exist and if it is listen in rsync port                     #
 #                       - Refining some inconsistencies.                                                    #
+# [01/09/2018] - v2.7.1 - Minor fix when remove old local files.                                            #
 #                                                                                                           #
 #-----------------------------------------------------------------------------------------------------------#
 
@@ -82,6 +83,7 @@
 
 LS=$(which ls)
 NC=$(which nc)
+RM=$(which rm)
 TAR=$(which tar)
 PWD=$(which pwd)
 FIND=$(which find)

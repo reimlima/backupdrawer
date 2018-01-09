@@ -51,6 +51,8 @@ Removing unused conditional in restore function.
 Validation for BDAGENTLOG and DESTINATIONTAR directories to exist.
 Test if Remote Server exist and if it is listen in rsync port.
 Refining some inconsistencies.
+* **01/09/2018 - v2.7.1** 
+Minor fix when remove old local files. 
 
 # How to use it
 --------------------------------------------------------------------------------
